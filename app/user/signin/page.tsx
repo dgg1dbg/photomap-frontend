@@ -10,7 +10,6 @@ import {Separator} from "@/components/ui/separator"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -57,7 +56,7 @@ const Signin = () => {
       }).then((res) => {
         localStorage.setItem("token", res.headers.authentication);
         router.push("/");
-      }).catch((err) => {
+      }).catch(() => {
         setFailed(true);
       })
   }
@@ -71,7 +70,7 @@ const Signin = () => {
     </div>
     <div className="flex justify-center p-10">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500] bg-white rounded-lg shadow-md p-10 flex flex-col gap-3">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-[500px] bg-white rounded-lg shadow-md p-10 flex flex-col gap-3">
           <FormField
             control={form.control}
             name="email" 

@@ -20,9 +20,9 @@ import {
 
 import { Map, Marker } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-import ExifReader from "exifreader"
+import ExifReader from 'exifreader';
 import {
     Command,
     CommandEmpty,
@@ -34,16 +34,15 @@ import {
 
 import { debounce } from "lodash";
 
-import { IoMdPricetag, IoIosLocate, IoMdMap, IoIosRemoveCircleOutline, IoMdSave } from "react-icons/io";
+import { IoMdPricetag, IoIosLocate, IoIosRemoveCircleOutline, IoMdSave, IoMdMap } from "react-icons/io";
 
-import config from "./../../../../config.json";
+import config from "../../../config.json";
 
-import { useMapStore } from "@/store/useMapStore"
+import {useMapStore} from "@/store/useMapStore";
 
-const EditPost = () => {
+const CreatePost = () => {
     const mapRef = useRef(null);
     const router = useRouter();
-    const params = useParams();
     const [imageStructList, setImageStructList] = useState([
         {file: null, description: "", coordinates : {latitude: 0, longitude: 0}},
     ]);
@@ -60,7 +59,6 @@ const EditPost = () => {
         zoom: 6,
         pitch: 30,
     });
-
     const [hashtags, setHashtags] = useState([]);
     const [searchedHashtags, setSearchedHashtags] = useState([]);
     const [hashtagInput, setHashtagInput] = useState("");
@@ -142,24 +140,6 @@ const EditPost = () => {
         })
     }, 300);
 
-    const handleChange = (event) => {
-        const {name, value} = event.target;
-        setPostData((prevData) => ({
-            ...prevData,
-            [name]: value,
-
-        }));
-    }
-
-    const handleImageDescriptionChange = (event, index) => {
-        const {name, value} = event.target;
-        setImageStructList((prevList) => {
-            const newList = [...prevList];
-            newList[index].description = value;
-            return newList;
-        });
-    }
-
     const uploadImage = async (event) => {
         const file = event.target.files[0];
         if (!file) {
@@ -178,6 +158,7 @@ const EditPost = () => {
             });
         }
 
+        // Convert to signed decimal format
         setImageStructList((prevList) => {
             const newList = [...prevList];
             newList[newList.length - 1].file = file;
@@ -190,44 +171,31 @@ const EditPost = () => {
         })
     }
 
-    const handleSubmit = () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/user/signin");
-        }
-        const formData = new FormData();
-        formData.append("name", postData.name);
-        formData.append("description", postData.description);
-        formData.append("hashtag", makeHashtagText());
-        formData.append("date", postData.date);
-        formData.append("time", postData.time);
-
-        for (let i = 0; i < imageStructList.length - 1; i++) {
-            const imageStruct = imageStructList[i];
-            if (typeof imageStruct.file === "string"){
-                formData.append("paths", imageStruct.file);
-            } else {
-                formData.append("files", imageStruct.file);
-            }
-            formData.append("descriptions", imageStruct.description || "");
-            formData.append("coordinates", imageStruct.coordinates ?  JSON.stringify([imageStruct.coordinates.longitude, imageStruct.coordinates.latitude]): []);
-        }
-
-        axios({
-            method: "PUT",
-            url: `${config.backend_url}/api/post/edit/${params.id}`,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authentication: token,
-            },
-            data: formData,
-        }).then((res) => {
-            router.push(`/post/view/${res.data.id}`);
-        }).catch((err) => {
-            console.log(err);
+    const removeImage = (index) => {
+        setImageStructList((prevList) => {
+            const newList = [...prevList];
+            newList.splice(index, 1);
+            return newList;
         })
-
+        if (imageStructList.length == 2) {
+            setViewState({
+                longitude: 127.766922,
+                latitude: 35.907757,
+                zoom: 6,
+                pitch: 30,
+            });
+        }
     }
+
+    const handleChange = (event) => {
+        const {name, value} = event.target;
+        setPostData((prevData) => ({
+            ...prevData,
+            [name]: value,
+
+        }));
+    }
+
 
     const handleMapClick = (event, index) => {
         const clickedCoordinates = event.lngLat;
@@ -248,27 +216,53 @@ const EditPost = () => {
         });
     };
 
-    const removeImage = (index) => {
+    const handleImageDescriptionChange = (event, index) => {
+        const {name, value} = event.target;
         setImageStructList((prevList) => {
             const newList = [...prevList];
-            newList.splice(index, 1);
+            newList[index].description = value;
             return newList;
-        })
-        if (imageStructList.length == 2) {
-            setViewState({
-                longitude: 127.766922,
-                latitude: 35.907757,
-                zoom: 6,
-                pitch: 30,
-            });
-        }
+        });
     }
 
-  const mapIcon = () => {
-    router.push("/");
-  };
+    const handleSubmit = () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.push("/user/signin");
+        }
+        const formData = new FormData();
+        formData.append("name", postData.name);
+        formData.append("description", postData.description);
+        formData.append("hashtag", makeHashtagText());
+        formData.append("date", now.toISOString().split('T')[0]);
+        formData.append("time", now.toISOString().split('T')[1].slice(0, 5));
 
+        for (let i = 0; i < imageStructList.length - 1; i++) {
+            const imageStruct = imageStructList[i];
+            formData.append("files", imageStruct.file);
+            formData.append("descriptions", imageStruct.description || "");
+            formData.append("coordinates", imageStruct.coordinates ?  JSON.stringify([imageStruct.coordinates.longitude, imageStruct.coordinates.latitude]): []);
+        }
 
+        axios({
+            method: "POST",
+            url: `${config.backend_url}/api/post/create`,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authentication: token,
+            },
+            data: formData,
+        }).then((res) => {
+            router.push(`/post/view/${res.data.id}`);
+        }).catch((err) => {
+            console.log(err);
+        })
+
+    }
+    
+    const mapIcon = () => {
+      router.push("/");
+    }
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -277,50 +271,28 @@ const EditPost = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/post/view/${params.id}`,
+            url: `${config.backend_url}/api/user/view`,
             headers: {
                 'Content-Type': 'application/json',
                 Authentication: token,
             },
         }).then((res) => {
-            setPostData({
-                name: res.data.name,
-                description: res.data.description,
-                hashtag: res.data.hashtag,
-                date: res.data.date,
-                time: res.data.time,
-            });
-            setImageStructList(res.data.pictures.map((image) => ({
-                file: image.fileDir,
-                description: image.description,
-                coordinates: {
-                    latitude: image.latitude,
-                    longitude: image.longitude,
-                },
-            })));
-            setImageStructList((prevList) => {
-                return [
-                    ...prevList,
-                    {file: null, description: "", coordinates : {latitude: 0, longitude: 0}},
-                ];
-            }
-            );
-            setHashtags(res.data.hashtag.split("#").filter((hashtag) => hashtag !== ""));
         }).catch((err) => {
             router.push("/user/signin");
-        })
+        });
     }, []);
 
     const theme = useMapStore((state) => state.map);
 
-
+    
     return (
         <>
-      <div className="fixed top-3 left-3 z-10 flex flex-col gap-2">
-      <div className="border-gray-300 border rounded-full">
-        <IoMdMap size={25} className="bg-black p-0.5 rounded-full" color="white" onClick={mapIcon}/>
-      </div>
-      </div>
+        <div className="fixed top-3 left-3 z-10 flex flex-col gap-2">
+          <div className="border-gray-300 border rounded-full">
+            <IoMdMap size={25} className="bg-black p-0.5 rounded-full" color="white" onClick={mapIcon}/>
+          </div>
+        </div>
+
             <input id="fileInput" type="file" onChange={uploadImage} className="hidden" />
             <div className="flex flex-row justify-between">
                 <div className="flex flex-col gap-3 p-10 ">
@@ -334,7 +306,7 @@ const EditPost = () => {
                     name="description"
                     value={postData.description}
                     onChange={handleChange}
-                    className="text-md text-black-500 border-none outline-none focus:ring-0 bg-transparent px-0 py-1 resize-none"
+                    className="text-sm text-gray-500 border-none outline-none focus:ring-0 bg-transparent px-0 py-1 resize-none"
                 />
                 <div className="flex flex-row gap-3 items-center">
                     <h2 className="text-sm text-gray-500"><IoMdPricetag/></h2>
@@ -351,7 +323,7 @@ const EditPost = () => {
                     ))}
                     <Popover open={hashtagPopupOpen} onOpenChange={setHashtagPopupOpen}>
                         <PopoverTrigger asChild><Button variant="outline" role="combobox" className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center">+</Button></PopoverTrigger>
-                        <PopoverContent className="w-[200]" side="bottom" align="start">
+                        <PopoverContent className="w-[200px]" side="bottom" align="start">
                             <Command>
                                 <CommandInput placeholder="Add Tag..." onInput={handleHashtagChange}/>
                                 <CommandEmpty><Label onClick={createHashtag}>No Existing Tag Found. Click Here to Create.</Label></CommandEmpty>
@@ -376,32 +348,24 @@ const EditPost = () => {
                     </Popover>
                     
                 </div>
+                
                 </div>
                 <div className="flex flex-col justify-center p-10">
                     <Button onClick={handleSubmit}><IoMdSave/></Button>
                 </div>
             </div>
             <Separator className="my-5"/>
-            <div className="flex justify-center">
-                <Carousel className="w-[800] bg-white p-10 flex flex-col gap-3">
+            <div className="flex justify-center mt-20">
+                <Carousel className="bg-white p-10 flex flex-col gap-3 w-[800px]">
                     <CarouselContent>
                     {imageStructList.map((imageStruct, index) => (
                         <CarouselItem key={index} className="flex justify-center items-center">
                             <div className="flex flex-col gap-3">
                             <Card className="rounded-none">
-                                <CardContent className="flex justify-center align-center p-2">
+                                <CardContent className="flex aspect-square items-center justify-center p-2">
                                     {imageStruct.file ? 
-                                        <img 
-                                            src={imageStruct.file instanceof File 
-                                                ? URL.createObjectURL(imageStruct.file) 
-                                                : `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}`} 
-                                            onError={(e) => {
-                                                if (imageStruct.file instanceof File) return; // Avoid infinite loop
-                                                e.target.src = URL.createObjectURL(imageStruct.file);
-                                            }}
-                                            alt="Uploaded Image"
-                                        /> :
-                                        <Label htmlFor= "fileInput" className="text-4xl"><h1 className="text-4xl w-[700] h-[700] flex justify-center items-center">+</h1></Label>
+                                        <img src={URL.createObjectURL(imageStruct.file)} />: 
+                                        <Label htmlFor="fileInput" className="cursor-pointer"><h1 className="text-4xl w-[700px] h-[700px] flex justify-center items-center">+</h1></Label>
                                         }
                                 </CardContent>
                             </Card>
@@ -412,35 +376,23 @@ const EditPost = () => {
                                 <PopoverTrigger asChild>
                                     <Button><IoIosLocate/></Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-[500] h-[800]">
+                                <PopoverContent className="w-[500px] h-[800px]">
                                     <Map
                                         ref={mapRef}
-                                        initialViewState={
-                                            imageStruct.coordinates.latitude && imageStruct.coordinates.longitude ?
-                                            {
-                                                longitude: imageStruct.coordinates.longitude,
-                                                latitude: imageStruct.coordinates.latitude,
-                                                zoom: 12,
-                                                pitch: 30,
-                                            } :
-                                            viewState
-                                        }
+                                        initialViewState={viewState}
                                         style={{ width: "100%", height: "100%" }}
                                         mapStyle={`/${theme}.json`}
                                         onClick={(event) => handleMapClick(event, index)}
                                     >
-                                    {imageStructList.map((imageStruct, i) => (
+                                    {imageStructList.map((imageStruct, index) => (
                                         imageStruct.coordinates.latitude && imageStruct.coordinates.longitude ?
                                         (
                                         <Marker
-                                            key={i}
+                                            key={index}
                                             longitude={imageStruct.coordinates.longitude}
                                             latitude={imageStruct.coordinates.latitude}
                                         >
-                                        {index == i ? 
-                                            <div className="bg-red-500 w-4 h-4 rounded-full"></div> :
-                                            <div className="bg-blue-500 w-4 h-4 rounded-full"></div>
-                                        }
+                                        <div className="bg-red-500 w-4 h-4 rounded-full"></div>
                                         </Marker>
                                         ) : null
                                     )) }
@@ -472,4 +424,4 @@ const EditPost = () => {
     )
 }
 
-export default EditPost;
+export default CreatePost;

@@ -30,7 +30,6 @@ import {
     SheetTitle,
     SheetTrigger,
     SheetFooter,
-    SheetClose,
   } from "@/components/ui/sheet"
 
 import { Button } from "@/components/ui/button"
@@ -58,7 +57,7 @@ export default function UserProfile() {
         description: "",
     });
 
-    const handleRowClick = (postID) => {
+    const handleRowClick = (postID: number) => {
         router.push(`/post/view/${postID}`)
     }
 
@@ -86,7 +85,7 @@ export default function UserProfile() {
                 password: null,
                 description: editProfile.description || null,
             },
-        }).then((res) => {
+        }).then(() => {
             router.push(`/user/view/${editProfile.username}`);
         }).catch((err) => {
             console.log(err);
@@ -105,8 +104,8 @@ export default function UserProfile() {
                 'Content-Type': 'application/json',
                 Authentication: token,
             },
-        }).then((res) => {
-        }).catch((err) => {
+        }).then(() => {
+        }).catch(() => {
             router.push("/user/signin");
         });
 
@@ -176,7 +175,7 @@ export default function UserProfile() {
                                 <SheetHeader>
                                 <SheetTitle>Edit profile</SheetTitle>
                                 <SheetDescription>
-                                    Make changes to your profile here. Click save when you're done.
+                                    Make changes to your profile here. Click save when you`&apos`re done.
                                 </SheetDescription>
                                 </SheetHeader>
                                 <div className="grid gap-4 py-4">

@@ -45,23 +45,7 @@ const Post = () => {
         time: "12:00:00",
         description: "",
     });
-    const [viewState, setViewState] = useState({
-        longitude: 127.766922,
-        latitude: 35.907757,
-        zoom: 6,
-        pitch: 30,
-    });
     const [hashtags, setHashtags] = useState([]);
-    const [isHorizontal, setIsHorizontal] = useState({});
-
-    const handleImageLoad = (index, event) => {
-        const img = event.target;
-        const isHorizontalValue = img.width > img.height;
-        setIsHorizontal((prev) => ({
-            ...prev,
-            [index]: isHorizontalValue,
-        }));
-    }
     
     const mapIcon = () => {
       router.push("/");
@@ -97,7 +81,7 @@ const Post = () => {
             })));
             setUser(res.data.user);
             setHashtags(res.data.hashtag.split("#").filter((hashtag) => hashtag !== ""));
-        }).catch((err) => {
+        }).catch(() => {
             router.push("/user/signin");
         })
 
@@ -150,7 +134,7 @@ const Post = () => {
                 <div className="flex flex-row gap-3 items-center">
                     <h2 className="text-sm text-gray-500"><IoMdPricetag/></h2>
                     {hashtags.map((hashtag, index) => (
-                        <Label key={index} className="bg-gray-200 rounded-full px-2 relative group">
+                        <Label key={index} className="bg-gray-200 rounded-full px-2 relative group" onClick={() => router.push(`/tag/picture/${hashtag}`)}>
                             {hashtag}
                         </Label>
                     ))}
@@ -165,7 +149,7 @@ const Post = () => {
             </div>
             <Separator className="my-5"/>
             <div className="flex justify-center mt-20">
-                <Carousel className="bg-white p-10 flex flex-col gap-3 w-[800]">
+                <Carousel className="bg-white p-10 flex flex-col gap-3 w-[800px]">
                     <CarouselContent>
                     {imageStructList.map((imageStruct, index) => (
                         <CarouselItem key={index} className="flex justify-center items-center">
@@ -174,7 +158,7 @@ const Post = () => {
                                 <CardContent className="flex justify-center align-center p-1">
                                     {imageStruct.file ? 
                                         <img src={`${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}`}/>: 
-                                        <h1 className="text-4xl w-[700] h-[700] flex justify-center items-center">?</h1>
+                                        <h1 className="text-4xl w-[700px] h-[700px] flex justify-center items-center">?</h1>
                                         }
                                 </CardContent>
                             </Card>
@@ -185,7 +169,7 @@ const Post = () => {
                                 <PopoverTrigger asChild>
                                     <Button><IoIosLocate/></Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-[500] h-[800]">
+                                <PopoverContent className="w-[500px] h-[800px]">
                                     <Map
                                         ref={mapRef}
                                         initialViewState={{

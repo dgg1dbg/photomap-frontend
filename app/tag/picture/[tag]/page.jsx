@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState, useRef, useMemo, use } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Map, Marker, MapProvider } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import axios from "axios";

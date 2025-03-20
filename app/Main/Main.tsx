@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, use } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Map, Marker, MapProvider } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import axios from "axios";
@@ -7,11 +7,35 @@ import { IoMdMap, IoMdPerson, IoIosMoon, IoIosSunny } from "react-icons/io";
 import { useMapStore } from "@/store/useMapStore";
 import config from "../../config.json";
 
+interface ImageStruct {
+  fileDir: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  postId: number;
+}
+
+interface ImageStructList {
+  file: string;
+  description: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  postId: number;
+}
+
+interface ImageMarkerProps {
+  k: number;
+  imageStruct: ImageStructList;
+}
+
+
 export function Main() {
   const mapRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
   const [imageStructList, setImageStructList] = useState([
-    { file: null, description: "", coordinates: { latitude: 0, longitude: 0 }, postId: null }
+    { file: "", description: "", coordinates: { latitude: 0, longitude: 0 }, postId: 0 }
   ]);
 
   const router = useRouter();
@@ -70,7 +94,7 @@ const themeIcon = () => {
       method: "GET",
       url: `${config.backend_url}/api/picture/viewAll`,
     }).then((res) => {
-      setImageStructList(res.data.map((image) => ({
+      setImageStructList(res.data.map((image: ImageStruct) => ({
         file: image.fileDir,
         description: image.description,
         coordinates: {
@@ -136,9 +160,9 @@ const themeIcon = () => {
   );
 }
 
-const ImageMarker = ({ k, imageStruct }) => {
+const ImageMarker = ({ k, imageStruct }: ImageMarkerProps) => {
   const router = useRouter();
-  const handleImageClick = (postId, event) => {
+  const handleImageClick = (postId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevents click from reaching the map
     router.push(`/post/view/${postId}`);
   }
@@ -155,7 +179,7 @@ const ImageMarker = ({ k, imageStruct }) => {
       {/* Image Preview Container */}
       <div className=" hidden group-hover:block">
         {/* Image with loading state */}
-        <div className="w-[300] h-[300]">
+        <div className="w-72 h-72">
           <img 
             src={imageStruct.file ? `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}` : ""}
             alt="Location preview" 
