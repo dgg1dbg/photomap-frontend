@@ -40,6 +40,8 @@ import config from "../../../config.json";
 
 import {useMapStore} from "@/store/useMapStore";
 
+import imageCompression from 'browser-image-compression';
+
 const CreatePost = () => {
     const mapRef = useRef(null);
     const router = useRouter();
@@ -225,7 +227,7 @@ const CreatePost = () => {
         });
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
             router.push("/user/signin");
@@ -240,7 +242,21 @@ const CreatePost = () => {
 
         for (let i = 0; i < imageStructList.length - 1; i++) {
             const imageStruct = imageStructList[i];
-            formData.append("files", imageStruct.file);
+            let file = imageStruct.file;
+
+            if (file.size > 1024 * 1024) {
+                try {
+                    file = await imageCompression(file, {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1920,
+                        useWebWorker: true,
+                    });
+                } catch (error) {
+                    console.error("Image compression failed:", error);
+                    continue;
+                }
+            }
+            formData.append("files", file);
             formData.append("descriptions", imageStruct.description || "");
             formData.append("coordinates", imageStruct.coordinates ?  JSON.stringify([imageStruct.coordinates.longitude, imageStruct.coordinates.latitude]): []);
         }
