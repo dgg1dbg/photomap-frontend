@@ -103,7 +103,7 @@ const CreatePost = () => {
             url: `${config.backend_url}/api/hashtag/create/${hashtagInput}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             if (res.data.success) {
@@ -131,7 +131,7 @@ const CreatePost = () => {
             url: `${config.backend_url}/api/hashtag/search/${value}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             setSearchedHashtags(res.data.hashtags.map((hashtag) => hashtag.name));
@@ -234,6 +234,7 @@ const CreatePost = () => {
         formData.append("name", postData.name);
         formData.append("description", postData.description);
         formData.append("hashtag", makeHashtagText());
+        const now = new Date();
         formData.append("date", now.toISOString().split('T')[0]);
         formData.append("time", now.toISOString().split('T')[1].slice(0, 5));
 
@@ -249,7 +250,7 @@ const CreatePost = () => {
             url: `${config.backend_url}/api/post/create`,
             headers: {
                 'Content-Type': 'multipart/form-data',
-                Authentication: token,
+                Authorization: token,
             },
             data: formData,
         }).then((res) => {
@@ -274,7 +275,7 @@ const CreatePost = () => {
             url: `${config.backend_url}/api/user/view`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
         }).catch((err) => {

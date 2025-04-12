@@ -105,7 +105,7 @@ const EditPost = () => {
             url: `${config.backend_url}/api/hashtag/create/${hashtagInput}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             if (res.data.success) {
@@ -133,7 +133,7 @@ const EditPost = () => {
             url: `${config.backend_url}/api/hashtag/search/${value}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             setSearchedHashtags(res.data.hashtags.map((hashtag) => hashtag.name));
@@ -218,7 +218,7 @@ const EditPost = () => {
             url: `${config.backend_url}/api/post/edit/${params.id}`,
             headers: {
                 'Content-Type': 'multipart/form-data',
-                Authentication: token,
+                Authorization: token,
             },
             data: formData,
         }).then((res) => {
@@ -280,7 +280,7 @@ const EditPost = () => {
             url: `${config.backend_url}/api/post/view/${params.id}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             setPostData({

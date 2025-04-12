@@ -78,7 +78,7 @@ export default function UserProfile() {
             url: `${config.backend_url}/api/user/edit`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
             data: {
                 username: editProfile.username || null,
@@ -102,7 +102,7 @@ export default function UserProfile() {
             url: `${config.backend_url}/api/user/view`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then(() => {
         }).catch(() => {
@@ -114,7 +114,7 @@ export default function UserProfile() {
             url: `${config.backend_url}/api/user/view/${userName}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
             setUser({
@@ -143,7 +143,7 @@ export default function UserProfile() {
                 url: `${config.backend_url}/api/user/view`,
                 headers: {
                     'Content-Type': 'application/json',
-                    Authentication: token,
+                    Authorization: token,
                 },
             }).then((res) => {
                 setIsOwner(res.data.username === user.username);

@@ -61,9 +61,10 @@ const Post = () => {
             url: `${config.backend_url}/api/post/view/${params.id}`,
             headers: {
                 'Content-Type': 'application/json',
-                Authentication: token,
+                Authorization: token,
             },
         }).then((res) => {
+            console.log(res.data);
             setPostData({
                 name: res.data.name,
                 description: res.data.description,
@@ -79,7 +80,9 @@ const Post = () => {
                     longitude: image.longitude,
                 },
             })));
-            setUser(res.data.user);
+            setUser({
+                username: res.data.user,
+            });
             setHashtags(res.data.hashtag.split("#").filter((hashtag) => hashtag !== ""));
         }).catch(() => {
             router.push("/user/signin");
@@ -99,7 +102,7 @@ const Post = () => {
                 url: `${config.backend_url}/api/user/view`,
                 headers: {
                     'Content-Type': 'application/json',
-                    Authentication: token,
+                    Authorization: token,
                 },
             }).then((res) => {
                 setIsOwner(res.data.username === user.username);

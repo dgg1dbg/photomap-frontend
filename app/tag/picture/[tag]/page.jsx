@@ -42,7 +42,7 @@ const userIcon = async () => {
       url: `${config.backend_url}/api/user/view`,
       headers: {
         'Content-Type': 'application/json',
-        Authentication: token,
+        Authorization: token,
       },
     });
 
@@ -80,7 +80,7 @@ const themeIcon = () => {
       url: `${config.backend_url}/api/hashtag/picture/${tag}`,
       headers: {
         'Content-Type': 'application/json',
-        Authentication: token,
+        Authorization: token,
      },
     }).then((res) => {
       setImageStructList(res.data.pictures.map((image) => ({
@@ -168,7 +168,7 @@ const ImageMarker = ({ k, imageStruct }) => {
       {/* Image Preview Container */}
       <div className=" hidden group-hover:block">
         {/* Image with loading state */}
-        <div className="w-[300] h-[300]">
+        <div className="w-[300px] h-[300px]">
           <img 
             src={imageStruct.file ? `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}` : ""}
             alt="Location preview" 

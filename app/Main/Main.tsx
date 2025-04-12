@@ -62,7 +62,7 @@ const userIcon = async () => {
       url: `${config.backend_url}/api/user/view`,
       headers: {
         'Content-Type': 'application/json',
-        Authentication: token,
+        Authorization: token,
       },
     });
 

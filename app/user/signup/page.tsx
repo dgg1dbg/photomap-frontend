@@ -66,7 +66,7 @@ const Signup = () => {
           desiption: "",
       },
       }).then((res) => {
-        localStorage.setItem("token", res.headers.authentication);
+        localStorage.setItem("token", res.data.token);
         router.push("/");
       }).catch(() => {
         setFailed(true);
