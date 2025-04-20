@@ -84,7 +84,7 @@ const themeIcon = () => {
      },
     }).then((res) => {
       setImageStructList(res.data.pictures.map((image) => ({
-        file: image.fileDir,
+        file: image.file_id,
         description: image.description,
         coordinates: {
           latitude: image.latitude,
@@ -155,6 +155,7 @@ const ImageMarker = ({ k, imageStruct }) => {
     event.stopPropagation(); // Prevents click from reaching the map
     router.push(`/post/view/${postId}`);
   }
+  const s3Url = process.env.NEXT_PUBLIC_S3_URL;
 
   return (
     <Marker
@@ -170,7 +171,7 @@ const ImageMarker = ({ k, imageStruct }) => {
         {/* Image with loading state */}
         <div className="w-[300px] h-[300px]">
           <img 
-            src={imageStruct.file ? `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}` : ""}
+            src={imageStruct.file ? `${s3Url}/compressed/${imageStruct.file}_small.jpg` : ""}
             alt="Location preview" 
             className=""
             loading="lazy"

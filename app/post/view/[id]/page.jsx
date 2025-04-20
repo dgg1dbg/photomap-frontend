@@ -73,7 +73,7 @@ const Post = () => {
                 time: res.data.time,
             });
             setImageStructList(res.data.pictures.map((image) => ({
-                file: image.fileDir,
+                file: image.file_id,
                 description: image.description,
                 coordinates: {
                     latitude: image.latitude,
@@ -115,6 +115,8 @@ const Post = () => {
     , [user]);
 
     const theme = useMapStore((state) => state.map);
+
+    const s3Url = process.env.NEXT_PUBLIC_S3_URL;
 
     return (
         <> 
@@ -160,7 +162,7 @@ const Post = () => {
                             <Card className="rounded-none">
                                 <CardContent className="flex justify-center align-center p-1">
                                     {imageStruct.file ? 
-                                        <img src={`${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}`}/>: 
+                                        <img src={`${s3Url}/compressed/${imageStruct.file}_medium.jpg`}/>: 
                                         <h1 className="text-4xl w-[700px] h-[700px] flex justify-center items-center">?</h1>
                                         }
                                 </CardContent>

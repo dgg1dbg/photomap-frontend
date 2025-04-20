@@ -8,7 +8,7 @@ import { useMapStore } from "@/store/useMapStore";
 import config from "../../config.json";
 
 interface ImageStruct {
-  fileDir: string;
+  file_id: string;
   description: string;
   latitude: number;
   longitude: number;
@@ -95,7 +95,7 @@ const themeIcon = () => {
       url: `${config.backend_url}/api/picture/viewAll`,
     }).then((res) => {
       setImageStructList(res.data.map((image: ImageStruct) => ({
-        file: image.fileDir,
+        file: image.file_id,
         description: image.description,
         coordinates: {
           latitude: image.latitude,
@@ -166,6 +166,7 @@ const ImageMarker = ({ k, imageStruct }: ImageMarkerProps) => {
     event.stopPropagation(); // Prevents click from reaching the map
     router.push(`/post/view/${postId}`);
   }
+  const s3Url = process.env.NEXT_PUBLIC_S3_URL;
 
   return (
     <Marker
@@ -181,7 +182,7 @@ const ImageMarker = ({ k, imageStruct }: ImageMarkerProps) => {
         {/* Image with loading state */}
         <div className="w-72 h-72">
           <img 
-            src={imageStruct.file ? `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}` : ""}
+            src={imageStruct.file ? `${s3Url}/compressed/${imageStruct.file}_small.jpg` : ""}
             alt="Location preview" 
             className=""
             loading="lazy"

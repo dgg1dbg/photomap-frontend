@@ -284,6 +284,8 @@ const EditPost = () => {
     router.push("/");
   };
 
+  const s3Url = process.env.NEXT_PUBLIC_S3_URL;
+
 
 
     useEffect(() => {
@@ -307,7 +309,7 @@ const EditPost = () => {
                 time: res.data.time,
             });
             setImageStructList(res.data.pictures.map((image) => ({
-                file: image.fileDir,
+                file: image.file_id,
                 description: image.description,
                 coordinates: {
                     latitude: image.latitude,
@@ -410,7 +412,7 @@ const EditPost = () => {
                                         <img 
                                             src={imageStruct.file instanceof File 
                                                 ? URL.createObjectURL(imageStruct.file) 
-                                                : `${config.backend_url}/api/picture?dir=${encodeURIComponent(imageStruct.file)}`} 
+                                                : `${s3Url}/compressed/${imageStruct.file}_medium.jpg`} 
                                             onError={(e) => {
                                                 if (imageStruct.file instanceof File) return; // Avoid infinite loop
                                                 e.target.src = URL.createObjectURL(imageStruct.file);
