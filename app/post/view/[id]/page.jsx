@@ -25,7 +25,6 @@ import axios from "axios";
 
 import { IoMdPricetag, IoIosLocate, IoMdMap, IoMdPerson, IoMdBrush } from "react-icons/io";
 
-import config from "../../../../config.json";
 
 import { useMapStore } from "@/store/useMapStore";
 
@@ -58,7 +57,7 @@ const Post = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/post/view/${params.id}`,
+            url: `/api/post/view/${params.id}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -99,7 +98,7 @@ const Post = () => {
         if (user) {
             axios({
                 method: "GET",
-                url: `${config.backend_url}/api/user/view`,
+                url: `/api/user/view`,
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: token,

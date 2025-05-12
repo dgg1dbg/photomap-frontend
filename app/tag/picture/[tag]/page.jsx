@@ -6,7 +6,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { IoMdMap, IoMdPerson, IoIosMoon, IoIosSunny } from "react-icons/io";
 import { useMapStore } from "@/store/useMapStore";
-import config from "../../../../config.json";
 import { useParams } from "next/navigation";
 
 const TagPicture = () => {
@@ -39,7 +38,7 @@ const userIcon = async () => {
   try {
     const res = await axios({
       method: "GET",
-      url: `${config.backend_url}/api/user/view`,
+      url: `/api/user/view`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: token,
@@ -77,7 +76,7 @@ const themeIcon = () => {
 
     axios({
       method: "GET",
-      url: `${config.backend_url}/api/hashtag/picture/${tag}`,
+      url: `/api/hashtag/picture/${tag}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: token,

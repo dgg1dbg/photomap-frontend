@@ -5,7 +5,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { IoMdMap, IoMdPerson, IoIosMoon, IoIosSunny } from "react-icons/io";
 import { useMapStore } from "@/store/useMapStore";
-import config from "../../config.json";
 
 interface ImageStruct {
   file_id: string;
@@ -59,7 +58,7 @@ const userIcon = async () => {
   try {
     const res = await axios({
       method: "GET",
-      url: `${config.backend_url}/api/user/view`,
+      url: `/api/user/view`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: token,
@@ -92,7 +91,7 @@ const themeIcon = () => {
   useEffect(() => {
     axios({
       method: "GET",
-      url: `${config.backend_url}/api/picture/viewAll`,
+      url: `/api/picture/viewAll`,
     }).then((res) => {
       setImageStructList(res.data.map((image: ImageStruct) => ({
         file: image.file_id,

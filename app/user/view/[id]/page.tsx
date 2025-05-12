@@ -37,7 +37,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label";
 import {IoMdMap} from "react-icons/io";
 
-import config from "../../../../config.json";
 
 export default function UserProfile() {
     const params = useParams();
@@ -75,7 +74,7 @@ export default function UserProfile() {
         const token = localStorage.getItem("token");
         axios({
             method: "PUT",
-            url: `${config.backend_url}/api/user/edit`,
+            url: `/api/user/edit`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -99,7 +98,7 @@ export default function UserProfile() {
 
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/user/view`,
+            url: `/api/user/view`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -111,7 +110,7 @@ export default function UserProfile() {
 
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/user/view/${userName}`,
+            url: `/api/user/view/${userName}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -140,7 +139,7 @@ export default function UserProfile() {
         if (user) {
             axios({
                 method: "GET",
-                url: `${config.backend_url}/api/user/view`,
+                url: `/api/user/view`,
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: token,

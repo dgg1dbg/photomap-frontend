@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Toaster } from "@/components/ui/toaster"
 import {useRouter} from "next/navigation"
-import config from "../../../config.json";
  
 const FormSchema = z.object({
   username: z.string().min(2, {
@@ -57,7 +56,7 @@ const Signup = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axios({
       method: "POST",
-      url: `${config.backend_url}/api/user/signup`,
+      url: `/api/user/signup`,
       headers: {'Content-Type': 'application/json'},
       data: {
           username: data.username,

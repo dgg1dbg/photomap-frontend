@@ -29,7 +29,6 @@ const FormSchema = z.object({
   }),
 })
 
-import config from "../../../config.json";
  
 const Signin = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -47,7 +46,7 @@ const Signin = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     axios({
       method: "POST",
-      url: `${config.backend_url}/api/user/signin`,
+      url: `/api/user/signin`,
       headers: {'Content-Type': 'application/json'},
       data: {
           email: data.email,

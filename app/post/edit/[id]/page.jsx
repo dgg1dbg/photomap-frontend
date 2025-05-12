@@ -36,7 +36,6 @@ import { debounce } from "lodash";
 
 import { IoMdPricetag, IoIosLocate, IoMdMap, IoIosRemoveCircleOutline, IoMdSave } from "react-icons/io";
 
-import config from "../../../../config.json";
 
 import { useMapStore } from "@/store/useMapStore"
 
@@ -104,7 +103,7 @@ const EditPost = () => {
         const token = localStorage.getItem("token");
         axios({
             method: "PUT",
-            url: `${config.backend_url}/api/hashtag/create/${hashtagInput}`,
+            url: `/api/hashtag/create/${hashtagInput}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -132,7 +131,7 @@ const EditPost = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/hashtag/search/${value}`,
+            url: `/api/hashtag/search/${value}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -231,7 +230,7 @@ const EditPost = () => {
 
         axios({
             method: "PUT",
-            url: `${config.backend_url}/api/post/edit/${params.id}`,
+            url: `/api/post/edit/${params.id}`,
             headers: {
                 'Content-Type': 'multipart/form-data',
                 Authorization: token,
@@ -295,7 +294,7 @@ const EditPost = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/post/view/${params.id}`,
+            url: `/api/post/view/${params.id}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,

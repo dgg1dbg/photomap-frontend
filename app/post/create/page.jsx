@@ -36,8 +36,6 @@ import { debounce } from "lodash";
 
 import { IoMdPricetag, IoIosLocate, IoIosRemoveCircleOutline, IoMdSave, IoMdMap } from "react-icons/io";
 
-import config from "../../../config.json";
-
 import {useMapStore} from "@/store/useMapStore";
 
 import imageCompression from 'browser-image-compression';
@@ -102,7 +100,7 @@ const CreatePost = () => {
         const token = localStorage.getItem("token");
         axios({
             method: "PUT",
-            url: `${config.backend_url}/api/hashtag/create/${hashtagInput}`,
+            url: `/api/hashtag/create/${hashtagInput}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -130,7 +128,7 @@ const CreatePost = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/hashtag/search/${value}`,
+            url: `/api/hashtag/search/${value}`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
@@ -263,7 +261,7 @@ const CreatePost = () => {
 
         axios({
             method: "POST",
-            url: `${config.backend_url}/api/post/create`,
+            url: `/api/post/create`,
             headers: {
                 'Content-Type': 'multipart/form-data',
                 Authorization: token,
@@ -288,7 +286,7 @@ const CreatePost = () => {
         }
         axios({
             method: "GET",
-            url: `${config.backend_url}/api/user/view`,
+            url: `/api/user/view`,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: token,
