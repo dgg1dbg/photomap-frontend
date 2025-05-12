@@ -66,7 +66,6 @@ const userIcon = async () => {
     });
 
     userName = res.data.username;
-    console.log(userName);  // Log userName after it's fetched
     router.push(`/user/view/${userName}`);  // Redirect to the user's page
   } catch (err) {
     console.error("Error fetching user:", err);

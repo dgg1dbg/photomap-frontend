@@ -63,7 +63,6 @@ const Post = () => {
                 Authorization: token,
             },
         }).then((res) => {
-            console.log(res.data);
             setPostData({
                 name: res.data.name,
                 description: res.data.description,
