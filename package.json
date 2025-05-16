@@ -33,6 +33,7 @@
     "loadash": "^1.0.0",
     "loadsh": "^0.0.4",
     "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.474.0",
     "mapbox-gl": "^3.9.4",
     "maplibre-gl": "^4.7.1",

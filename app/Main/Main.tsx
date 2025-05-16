@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Map, Marker, MapProvider } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { IoMdMap, IoMdPerson, IoIosMoon, IoIosSunny } from "react-icons/io";
 import { useMapStore } from "@/store/useMapStore";
+import debounce from "lodash.debounce";
 
 interface ImageStruct {
   file_id: string;
@@ -41,6 +42,52 @@ export function Main() {
   const handleMapClick = () => {
     router.push("/post/create");
   }
+
+  const fetchImages = async (bounds) => {
+    axios({
+      method: "GET",
+      url: `/api/picture/viewAll`,
+      params: {
+        west: bounds.west,
+        east: bounds.east,
+        north: bounds.north,
+        south: bounds.south,
+      },
+    }).then((res) => {
+      setImageStructList(res.data.map((image: ImageStruct) => ({
+        file: image.file_id,
+        description: image.description,
+        coordinates: {
+          latitude: image.latitude,
+          longitude: image.longitude,
+        },
+        postId: image.postId,
+      })));
+    }).catch((err) => {
+      console.log(err);
+    })
+  };
+
+  const debouncedFetch = useCallback(
+    debounce((bounds) => {
+      fetchImages(bounds);
+    }, 500),
+    []
+  );
+
+  const handleMapMove = useCallback(() => {
+    if (!mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    const bounds = map.getBounds();
+    const boundsObj = {
+      west: bounds.getWest(),
+      east: bounds.getEast(),
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+    }
+    debouncedFetch(boundsObj);
+  }, [debouncedFetch]);
 
   const mapIcon = () => {
     router.push("/");
@@ -88,22 +135,17 @@ const themeIcon = () => {
   }, []);
 
   useEffect(() => {
-    axios({
-      method: "GET",
-      url: `/api/picture/viewAll`,
-    }).then((res) => {
-      setImageStructList(res.data.map((image: ImageStruct) => ({
-        file: image.file_id,
-        description: image.description,
-        coordinates: {
-          latitude: image.latitude,
-          longitude: image.longitude,
-        },
-        postId: image.postId,
-      })));
-    }).catch((err) => {
-      console.log(err);
-    })
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
+      const bounds = map.getBounds();
+      const boundsObj = {
+        west: bounds.getWest(),
+        east: bounds.getEast(),
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+      }
+      fetchImages(boundsObj);
+    }
   }, []);
   const theme = useMapStore((state) => state.map);
 
@@ -145,6 +187,7 @@ const themeIcon = () => {
           style={{ width: "100%", height: "100vh" }}
           mapStyle={`/${theme}.json`}
           onClick={handleMapClick}
+          onMove={handleMapMove}
         >
           {imageStructList.map((imageStruct, index) => (
             imageStruct.coordinates.latitude && imageStruct.coordinates.longitude ? (
