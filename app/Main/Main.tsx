@@ -93,6 +93,19 @@ export function Main() {
     router.push("/");
   };
 
+  const handleMapLoad = () => {
+    if (!mapRef.current) return;
+    const map = mapRef.current.getMap();
+    const bounds = map.getBounds();
+    const boundsObj = {
+      west: bounds.getWest(),
+      east: bounds.getEast(),
+      north: bounds.getNorth(),
+      south: bounds.getSouth(),
+    }
+    fetchImages(boundsObj);
+  };
+
 
 const userIcon = async () => {
   let userName = "";
@@ -134,19 +147,6 @@ const themeIcon = () => {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      const bounds = map.getBounds();
-      const boundsObj = {
-        west: bounds.getWest(),
-        east: bounds.getEast(),
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-      }
-      fetchImages(boundsObj);
-    }
-  }, []);
   const theme = useMapStore((state) => state.map);
 
   if (!isClient) return <div className="">Loading...</div>;
@@ -188,6 +188,7 @@ const themeIcon = () => {
           mapStyle={`/${theme}.json`}
           onClick={handleMapClick}
           onMove={handleMapMove}
+          onLoad={handleMapLoad}
         >
           {imageStructList.map((imageStruct, index) => (
             imageStruct.coordinates.latitude && imageStruct.coordinates.longitude ? (
