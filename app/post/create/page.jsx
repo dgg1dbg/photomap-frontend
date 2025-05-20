@@ -32,7 +32,7 @@ import {
     CommandList,
   } from "@/components/ui/command"
 
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 
 import { IoMdPricetag, IoIosLocate, IoIosRemoveCircleOutline, IoMdSave, IoMdMap } from "react-icons/io";
 
@@ -52,6 +52,7 @@ const CreatePost = () => {
         date: "2025-01-01",
         time: "12:00:00",
         description: "",
+        location: "",
     });
     const [viewState, setViewState] = useState({
         longitude: 127.766922,
@@ -63,6 +64,10 @@ const CreatePost = () => {
     const [searchedHashtags, setSearchedHashtags] = useState([]);
     const [hashtagInput, setHashtagInput] = useState("");
     const [hashtagPopupOpen, setHashtagPopupOpen] = useState(false);
+
+    const [locationPopupOpen, setLocationPopupOpen] = useState(false);
+    const [locationInput, setLocationInput] = useState("");
+    const [searchedLocations, setSearchedLocations] = useState([]);
 
     const handleHashtagChange = (event) => {
         const {value} = event.target;
@@ -140,6 +145,46 @@ const CreatePost = () => {
         })
     }, 300);
 
+
+    const handleLocationChange = (event) => {
+        const {value} = event.target;
+        setLocationInput(value);
+    }
+
+    const searchLocations = debounce((value) => {
+        const token = localStorage.getItem("token");
+        if (!value.trim()) {
+            setSearchedLocations([]);
+            return;
+        }
+        axios({
+            method: "GET",
+            url: "/api/place/search",
+            params: {
+                query: value,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: token,
+            },
+        }).then((res) => {
+            setSearchedLocations(res.data.map((location) => ({
+                name: location.name,
+                coordinates: {
+                    latitude: location.geometry.location.lat,
+                    longitude: location.geometry.location.lng,
+                },
+                address: location.formatted_address,
+            })));
+        })
+    }, 300);
+
+    const createLocation = () => {
+        return;
+    }
+
+    
+
     const uploadImage = async (event) => {
         const file = event.target.files[0];
         if (!file) {
@@ -163,8 +208,8 @@ const CreatePost = () => {
             const newList = [...prevList];
             newList[newList.length - 1].file = file;
             newList[newList.length - 1].coordinates = { 
-                latitude: latitude || 0, 
-                longitude: longitude || 0 
+                latitude: latitude || viewState.latitude, 
+                longitude: longitude || viewState.longitude 
             };
             newList.push({ file: null, description: "", coordinates: { latitude: 0, longitude: 0 } });
             return newList;
@@ -231,12 +276,29 @@ const CreatePost = () => {
             router.push("/user/signin");
         }
         const formData = new FormData();
+        if (postData.name === "") {
+            alert("Please enter a title.");
+            return;
+        }
+        if (postData.description === "") {
+            alert("Please enter a description.");
+            return;
+        }
+        if (postData.location === "") {
+            alert("Please enter a location.");
+            return;
+        }
+        if (imageStructList.length === 1) {
+            alert("Please upload at least one image.");
+            return;
+        }
         formData.append("name", postData.name);
         formData.append("description", postData.description);
         formData.append("hashtag", makeHashtagText());
         const now = new Date();
         formData.append("date", now.toISOString().split('T')[0]);
         formData.append("time", now.toISOString().split('T')[1].slice(0, 5));
+        formData.append("place", postData.location);
 
         for (let i = 0; i < imageStructList.length - 1; i++) {
             const imageStruct = imageStructList[i];
@@ -324,9 +386,82 @@ const CreatePost = () => {
                     className="text-sm text-gray-500 border-none outline-none focus:ring-0 bg-transparent px-0 py-1 resize-none"
                 />
                 <div className="flex flex-row gap-3 items-center">
+                    <h2 className="text-sm text-gray-500"><IoIosLocate/></h2>
+                    <Popover open={locationPopupOpen} onOpenChange={setLocationPopupOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center"
+                            >
+                            {postData.location || "+"}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[500px]" side="bottom" align="start">
+                            <div className="flex flex-col gap-2 w-full">
+                            <div className="flex flex-row gap-3 items-center w-full">
+                                <input
+                                type="text"
+                                value={locationInput}
+                                onChange={(e) => setLocationInput(e.target.value)}
+                                placeholder="Search Location..."
+                                className="flex-grow border px-3 py-2 rounded text-sm"
+                                />
+                                <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => searchLocations(locationInput)}
+                                >
+                                Search
+                                </Button>
+                            </div>
+                            {searchedLocations.length === 0 ? (
+                                <Label
+                                onClick={createLocation}
+                                className="text-sm text-muted-foreground cursor-pointer hover:underline"
+                                >
+                                No Existing Location Found. Click here to Create.
+                                </Label>
+                            ) : (
+                                <div className="flex flex-col mt-2">
+                                <h4 className="text-sm font-medium text-gray-500 mb-1">Searched Locations</h4>
+                                <ul className="space-y-1">
+                                    {searchedLocations.map((location, index) => (
+                                    <li
+                                        key={index}
+                                        onClick={() => {
+                                        setLocationInput("");
+                                        setPostData((prevData) => ({
+                                            ...prevData,
+                                            location: location.name,
+                                        }));
+                                        setViewState({
+                                            longitude: location.coordinates.longitude,
+                                            latitude: location.coordinates.latitude,
+                                            zoom: 12,
+                                            pitch: 30,
+                                        });
+                                        setLocationPopupOpen(false);
+                                        }}
+                                        className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                                    >
+                                        <div className="flex flex-col items-start">
+                                        <span className="text-sm text-gray-500">{location.name}</span>
+                                        <span className="text-xs text-gray-400">{location.address}</span>
+                                        </div>
+                                    </li>
+                                    ))}
+                                </ul>
+                                </div>
+                            )}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                </div>
+                <div className="flex flex-row gap-3 items-center">
                     <h2 className="text-sm text-gray-500"><IoMdPricetag/></h2>
                     {hashtags.map((hashtag, index) => (
-                        <Label key={index} className="bg-gray-200 rounded-full px-2 relative group">
+                        <Button key={index} variant="outline" className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center relative">
                             {hashtag}
                             <span 
                                 className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs cursor-pointer group-hover:cursor-pointer"
@@ -334,7 +469,7 @@ const CreatePost = () => {
                             >
                                 x
                             </span>
-                        </Label>
+                        </Button>
                     ))}
                     <Popover open={hashtagPopupOpen} onOpenChange={setHashtagPopupOpen}>
                         <PopoverTrigger asChild><Button variant="outline" role="combobox" className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center">+</Button></PopoverTrigger>
@@ -371,6 +506,7 @@ const CreatePost = () => {
             </div>
             <Separator className="my-5"/>
             <div className="flex justify-center mt-20">
+                {postData.location &&
                 <Carousel className="bg-white p-10 flex flex-col gap-3 w-[800px]">
                     <CarouselContent>
                     {imageStructList.map((imageStruct, index) => (
@@ -416,13 +552,6 @@ const CreatePost = () => {
                             </Popover>
                             <Button onClick={removeImage}><IoIosRemoveCircleOutline/></Button>
                             </div>
-                            <textarea
-                             placeholder="Descriptions"
-                             name="description"
-                             value={imageStruct.description}
-                             onChange={(event) => handleImageDescriptionChange(event, index)}
-                             className="text-sm text-gray-500 border-none outline-none focus:ring-0 bg-transparent px-0 py-1 resize-none"
-                            />
                             </>
                             }
                             
@@ -434,6 +563,7 @@ const CreatePost = () => {
                     <CarouselPrevious />
                     <CarouselNext />
                 </Carousel>
+                } 
             </div>
         </>
     )

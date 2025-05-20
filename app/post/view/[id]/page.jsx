@@ -43,6 +43,7 @@ const Post = () => {
         date: "2025-01-01",
         time: "12:00:00",
         description: "",
+        location: "",
     });
     const [hashtags, setHashtags] = useState([]);
     
@@ -69,6 +70,7 @@ const Post = () => {
                 hashtag: res.data.hashtag,
                 date: res.data.date,
                 time: res.data.time,
+                location: res.data.place,
             });
             setImageStructList(res.data.pictures.map((image) => ({
                 file: image.file_id,
@@ -128,20 +130,28 @@ const Post = () => {
                 <h1 className="text-4xl font-bold mt-3">{postData.name}</h1>
                 <div className="flex flex-row gap-3 items-center">
                     <h1 className="text-sm text-gray-500"><IoMdPerson/></h1>
-                    <Label onClick={() => router.push(`/user/view/${user?.username}`)}>
+                    <Button variant="outline" className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center" onClick={() => router.push(`/user/view/${user?.username}`)}>
                         <h1 className="text-sm text-black-500">{user?.username}
                         </h1>
-                    </Label>
+                    </Button>
                 </div>
-                <h1 className="text-md text-black-500">{postData.description}</h1>
+                <div className="flex flex-row gap-3 items-center">
+                    <h2 className="text-sm text-gray-500"><IoIosLocate/></h2>
+                    <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center"
+                    >{postData.location}</Button>
+                </div>
                 <div className="flex flex-row gap-3 items-center">
                     <h2 className="text-sm text-gray-500"><IoMdPricetag/></h2>
                     {hashtags.map((hashtag, index) => (
-                        <Label key={index} className="bg-gray-200 rounded-full px-2 relative group" onClick={() => router.push(`/tag/picture/${hashtag}`)}>
+                        <Button key={index} variant="outline" className="w-[5] h-[20] rounded-full text-sm flex items-center justify-center relative" onClick={() => router.push(`/tag/picture/${hashtag}`)}>
                             {hashtag}
-                        </Label>
+                        </Button>
                     ))}
                 </div>
+                <h1 className="text-md text-black-500">{postData.description}</h1>
                 </div>
                 <div className="flex flex-col justify-center p-10">
                     {
@@ -199,9 +209,6 @@ const Post = () => {
                                     </Map>
                                 </PopoverContent>
                             </Popover>
-                            </div>
-                            <div className="text-sm text-gray-500">
-                                {imageStruct.description}
                             </div>
                             </>
                             }
